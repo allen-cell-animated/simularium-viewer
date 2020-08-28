@@ -111,6 +111,7 @@ class VisGeometry {
     public colorVariant: number;
     public fixLightsToCamera: boolean;
     public highlightedIds: number[];
+    public hiddenIds: number[];
     public paths: PathData[];
     public mlogger: ILogger;
     public renderer: WebGLRenderer;
@@ -156,6 +157,7 @@ class VisGeometry {
         this.colorVariant = 50;
         this.fixLightsToCamera = true;
         this.highlightedIds = [];
+        this.hiddenIds = [];
 
         // will store data for all agents that are drawing paths
         this.paths = [];
@@ -344,6 +346,20 @@ class VisGeometry {
 
     public unfollow(): void {
         this.setFollowObject(NO_AGENT);
+    }
+
+    public setVisibleByIds(hiddenIds: number[]): void {
+        this.hiddenIds = hiddenIds;
+
+        // go over all objects and update material
+        const nMeshes = this.visAgents.length;
+        for (let i = 0; i < MAX_MESHES && i < nMeshes; i += 1) {
+            const visAgent = this.visAgents[i];
+            if (visAgent.active) {
+                const isHidden = this.hiddenIds.includes(visAgent.typeId);
+                visAgent.setVisibility(isHidden);
+            }
+        }
     }
 
     public setHighlightByIds(ids: number[]): void {

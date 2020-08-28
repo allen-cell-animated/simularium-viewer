@@ -38,8 +38,8 @@ class SelectionInterface {
     }
 
     public containsTag(tag: string): boolean {
-        return Object.values(this.entries).some(entriesArr => {
-            return entriesArr.some(entry => {
+        return Object.values(this.entries).some((entriesArr) => {
+            return entriesArr.some((entry) => {
                 return entry.tags.includes(tag);
             });
         });
@@ -48,7 +48,7 @@ class SelectionInterface {
     public parse(idNameMapping: EncodedTypeMapping): void {
         this.clear();
 
-        Object.keys(idNameMapping).forEach(id => {
+        Object.keys(idNameMapping).forEach((id) => {
             this.decode(idNameMapping[id], parseInt(id));
         });
     }
@@ -84,8 +84,8 @@ class SelectionInterface {
         const entryList = this.entries[name];
         const indices: number[] = [];
 
-        entryList.forEach(entry => {
-            if (!tags || tags.every(t => entry.tags.includes(t))) {
+        entryList.forEach((entry) => {
+            if (!tags || tags.every((t) => entry.tags.includes(t))) {
                 if (entry.id >= 0) {
                     indices.push(entry.id);
                 }
@@ -97,7 +97,7 @@ class SelectionInterface {
 
     public getIdsByTags(tags: string[]): number[] {
         let indices: number[] = [];
-        Object.keys(this.entries).forEach(name => {
+        Object.keys(this.entries).forEach((name) => {
             indices = indices.concat(this.getIds(name, tags));
         });
 
@@ -111,11 +111,11 @@ class SelectionInterface {
      */
     public getHighlightedIds(info: SelectionStateInfo): number[] {
         let names =
-            info.highlightedNames.filter(element => {
+            info.highlightedNames.filter((element) => {
                 return element != undefined && element != "";
             }) || [];
         const tags: string[] =
-            info.highlightedTags.filter(element => {
+            info.highlightedTags.filter((element) => {
                 return element != undefined && element != "";
             }) || [];
         let indices: number[] = [];
@@ -128,7 +128,7 @@ class SelectionInterface {
         // If there are tags but no name,
         //  search all names for matching tags
 
-        Object.keys(this.entries).forEach(name => {
+        Object.keys(this.entries).forEach((name) => {
             if (!names || names.length === 0 || names.includes(name)) {
                 // If no tags are specified, this will return all register a
                 //  match for all entries
@@ -143,39 +143,39 @@ class SelectionInterface {
      * If an entry has a name specified in the selection state info
      * or a tag specified, it will be considered hidden
      */
-    public getVisibleIds(info: SelectionStateInfo): number[] {
+    public getHiddenIds(info: SelectionStateInfo): number[] {
         const hiddenNames =
-            info.hiddenNames.filter(element => {
+            info.hiddenNames.filter((element) => {
                 return element != undefined && element != "";
             }) || [];
         const hiddenTags =
-            info.hiddenTags.filter(element => {
+            info.hiddenTags.filter((element) => {
                 return element != undefined && element != "";
             }) || [];
-        const indices: number[] = [];
+        const hiddenIndices: number[] = [];
 
-        Object.keys(this.entries).forEach(name => {
+        Object.keys(this.entries).forEach((name) => {
             // If the name is on the hidden list...
             if (
-                !hiddenNames ||
-                hiddenNames.length === 0 ||
-                !hiddenNames.includes(name)
+                hiddenNames &&
+                hiddenNames.length === 0 &&
+                hiddenNames.includes(name)
             ) {
                 const entryList = this.entries[name];
 
-                entryList.forEach(entry => {
-                    // And no tags on the hidden list are found...
-                    if (hiddenTags.every(t => !entry.tags.includes(t))) {
+                entryList.forEach((entry) => {
+                    // And tags on the hidden list are found...
+                    if (hiddenTags.every((t) => entry.tags.includes(t))) {
                         if (entry.id > 0) {
-                            // This entry is visible
-                            indices.push(entry.id);
+                            // This entry is hidden
+                            hiddenIndices.push(entry.id);
                         }
                     }
                 });
             }
         });
 
-        return indices;
+        return hiddenIndices;
     }
 
     public clear(): void {
@@ -183,12 +183,12 @@ class SelectionInterface {
     }
 
     public getUIDisplayData(): UIDisplayData {
-        return Object.keys(this.entries).map(name => {
+        return Object.keys(this.entries).map((name) => {
             const displayStates: DisplayStateEntry[] = [];
             const encounteredTags: string[] = [];
 
-            this.entries[name].forEach(entry => {
-                entry.tags.forEach(tag => {
+            this.entries[name].forEach((entry) => {
+                entry.tags.forEach((tag) => {
                     if (encounteredTags.includes(tag)) {
                         return;
                     }

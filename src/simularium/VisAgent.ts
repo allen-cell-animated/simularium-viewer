@@ -45,6 +45,10 @@ export default class VisAgent {
             color: new Color(1, 0, 0),
         }
     );
+    private static hiddenMaterial: MeshBasicMaterial = new MeshBasicMaterial({
+        color: new Color(1, 0, 0),
+        opacity: 0,
+    });
     private static membraneData: {
         faces: { name: string }[];
         sides: { name: string }[];
@@ -91,6 +95,7 @@ export default class VisAgent {
     public color: Color;
     public name: string;
     public highlighted: boolean;
+    public hidden: boolean;
     public selected: boolean;
     public visType: number;
 
@@ -103,6 +108,7 @@ export default class VisAgent {
         this.typeId = -1;
         this.colorIndex = 0;
         this.highlighted = false;
+        this.hidden = false;
         // all are selected by default.  deselecting will desaturate.
         this.selected = true;
         this.baseMaterial = new MeshLambertMaterial({
@@ -154,6 +160,11 @@ export default class VisAgent {
         this.assignMaterial();
     }
 
+    public setVisibility(hidden: boolean): void {
+        this.hidden = hidden;
+        this.assignMaterial();
+    }
+
     public setHighlighted(highlighted: boolean): void {
         this.highlighted = highlighted;
         this.assignMaterial();
@@ -170,7 +181,9 @@ export default class VisAgent {
         }
 
         let material = this.desatMaterial;
-        if (this.highlighted) {
+        if (this.hidden) {
+            material = VisAgent.hiddenMaterial;
+        } else if (this.highlighted) {
             material = VisAgent.highlightMaterial;
         } else if (this.selected) {
             material = this.baseMaterial;
@@ -186,7 +199,7 @@ export default class VisAgent {
             this.mesh.material = material;
             this.mesh.onBeforeRender = this.onAgentMeshBeforeRender.bind(this);
         } else {
-            this.mesh.traverse(child => {
+            this.mesh.traverse((child) => {
                 if (child instanceof Mesh) {
                     child.material = material;
                     child.onBeforeRender = this.onAgentMeshBeforeRender.bind(
@@ -200,13 +213,13 @@ export default class VisAgent {
     public assignMembraneMaterial(): void {
         if (this.selected) {
             // at this time, assign separate material parameters to the faces and sides of the membrane
-            const faceNames = VisAgent.membraneData.faces.map(el => {
+            const faceNames = VisAgent.membraneData.faces.map((el) => {
                 return el.name;
             });
-            const sideNames = VisAgent.membraneData.sides.map(el => {
+            const sideNames = VisAgent.membraneData.sides.map((el) => {
                 return el.name;
             });
-            this.mesh.traverse(child => {
+            this.mesh.traverse((child) => {
                 if (child instanceof Mesh) {
                     if (faceNames.includes(child.name)) {
                         child.material = VisAgent.membraneData.facesMaterial;
@@ -220,7 +233,7 @@ export default class VisAgent {
             VisAgent.membraneData.sidesMaterial.uniforms.uvscale.value =
                 VisAgent.membraneData.sidesUVScale;
         } else {
-            this.mesh.traverse(child => {
+            this.mesh.traverse((child) => {
                 if (child instanceof Mesh) {
                     child.material = this.desatMaterial;
                 }
