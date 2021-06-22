@@ -380,16 +380,10 @@ class VisData {
             return false;
         }
 
-        const firstFrameTime = this.frameDataCache[0].time;
-        const lastFrameTime = this.frameDataCache[
-            this.frameDataCache.length - 1
-        ].time;
-
-        const notLessThanFirstFrameTime =
-            compareTimes(timeNs, firstFrameTime, this.timeStepSize) !== -1;
-        const notGreaterThanLastFrameTime =
-            compareTimes(timeNs, lastFrameTime, this.timeStepSize) !== 1;
-        return notLessThanFirstFrameTime && notGreaterThanLastFrameTime;
+        return (
+            this.frameDataCache[0].time <= timeNs &&
+            this.frameDataCache[this.frameDataCache.length - 1].time >= timeNs
+        );
     }
 
     public gotoTime(timeNs: number): void {
