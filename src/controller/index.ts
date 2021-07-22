@@ -290,6 +290,7 @@ export default class SimulariumController {
         this.assetPrefix = assetPrefix ? assetPrefix : DEFAULT_ASSET_PREFIX;
         this.visData.WaitForFrame(0);
         this.visData.clearCache();
+        this.visData.cancelAllWorkers();
 
         this.stop();
 
